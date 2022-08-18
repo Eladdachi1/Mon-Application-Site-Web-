@@ -1,0 +1,52 @@
+import pandas as pd
+import plotly.express as px  
+import plotly.graph_objects as go
+import dash
+from dash import Dash, dcc, html, Input, Output 
+
+app = Dash(__name__)
+df = pd.read_csv("https://cf-courses-data.s3.us.cloud-object-storage.appdomain.cloud/IBMDeveloperSkillsNetwork-DV0101EN-SkillsNetwork/Data%20Files/airline_data.csv")
+
+app.layout = html.Div([
+
+    html.H1("Oussama Web Application", style={'text-align': 'center'}),
+
+    dcc.Dropdown(id="slct_year",
+                 options=[
+                     {"label": "2015", "value": 2015},
+                     {"label": "2016", "value": 2016},
+                     {"label": "2017", "value": 2017},
+                     {"label": "2018", "value": 2018}],
+                 style={'width': "60%"}
+                 ),
+
+    html.Div(id='output_container', children=[]),
+    html.Br(),
+
+    dcc.Graph(id='evolution of the AirTime', figure={})
+
+])
+@app.callback(
+    [Output(component_id='output_container', component_property='children'),
+     Output(component_id='evolution of the AirTime', component_property='figure')],
+    [Input(component_id='slct_year', component_property='value')]
+)
+
+    
+    
+def update_graph(option_slctd):
+    print(option_slctd)
+    print(type(option_slctd))
+
+    container = "The year chosen: {}".format(option_slctd)
+    dff = df.copy()
+    dff = dff[dff["Year"] == option_slctd]
+    
+    
+    
+    fig = px.line(dff, x='Month', y='AirTime', color='Reporting_Airline', title='Average monthly flight time (minutes) by airline')
+    
+    return container, fig
+
+if __name__ == '__main__':
+    app.run_server(debug=True)
